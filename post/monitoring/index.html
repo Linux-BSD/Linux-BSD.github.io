@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang='en' dir='auto'><head>
+  <meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='description' content='This blog post describes my setup for monitoring various devices on my home network suh as servers, laptops/desktops, networking gear etc. The setup and configuration is squarely geared towards small/medium sized network monitoring. A similar setup might work for large networks, but you will need to plan your compute/storage/bandwidth capacities accordingly. I&rsquo;m running all the monitoring software on FreeBSD, but you can run it on your choice of OS. Just make sure to install the packages using your OS&rsquo;s package manager.'>
+<meta name='theme-color' content='#ffcd00'>
+
+<meta property='og:title' content='Home Network Monitoring using Prometheus • FreeBSD Adventures'>
+<meta property='og:description' content='This blog post describes my setup for monitoring various devices on my home network suh as servers, laptops/desktops, networking gear etc. The setup and configuration is squarely geared towards small/medium sized network monitoring. A similar setup might work for large networks, but you will need to plan your compute/storage/bandwidth capacities accordingly. I&rsquo;m running all the monitoring software on FreeBSD, but you can run it on your choice of OS. Just make sure to install the packages using your OS&rsquo;s package manager.'>
+<meta property='og:url' content='https://linux-bsd.github.io/post/monitoring/'>
+<meta property='og:site_name' content='FreeBSD Adventures'>
+<meta property='og:type' content='article'><meta property='article:section' content='post'><meta property='article:tag' content='Prometheus'><meta property='article:tag' content='Grafana'><meta property='article:tag' content='FreeBSD'><meta property='article:tag' content='Network Monitoring'><meta property='article:tag' content='Metrics'><meta property='article:tag' content='Home Networking'><meta property='article:published_time' content='2021-04-11T17:38:02-05:00'/><meta property='article:modified_time' content='2021-04-11T17:38:02-05:00'/><meta name='twitter:card' content='summary'><meta name='twitter:site' content='@linux_bsd'>
+
+<meta name="generator" content="Hugo 0.81.0" />
+
+  <title>Home Network Monitoring using Prometheus • FreeBSD Adventures</title>
+  <link rel='canonical' href='https://linux-bsd.github.io/post/monitoring/'>
+  
+  
+  <link rel='icon' href='/favicon.ico'>
+<link rel='stylesheet' href='/assets/css/main.ab98e12b.css'><link rel='stylesheet' href='/css/custom.css'><style>
+:root{--color-accent:#ffcd00;}
+</style>
+
+  
+<link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+
+</head>
+<body class='page type-post has-sidebar'>
+
+  <div class='site'><div id='sidebar' class='sidebar'>
+  <a class='screen-reader-text' href='#main-menu'>Skip to Main Menu</a>
+
+  <div class='container'><section class='widget widget-about sep-after'>
+  <header>
+    
+    <div class='logo'>
+      <a href='/'>
+        <img src='/images/logo.png'>
+      </a>
+    </div>
+    
+    <h2 class='title site-title '>
+      <a href='/'>
+      FreeBSD Adventures
+      </a>
+    </h2>
+    <div class='desc'>
+    Blog mostly about the FreeBSD Operating Systems
+    </div>
+  </header>
+
+</section>
+<section class='widget widget-taxonomy_cloud sep-after'>
+  <header>
+    <h4 class='title widget-title'>Tags</h4>
+  </header>
+
+  <div class='container list-container'>
+  <ul class='list taxonomy-cloud'><li>
+        <a href='/tags/freebsd/' style='font-size:2em'>FreeBSD</a>
+      </li><li>
+        <a href='/tags/grafana/' style='font-size:1em'>Grafana</a>
+      </li><li>
+        <a href='/tags/home-networking/' style='font-size:1em'>Home Networking</a>
+      </li><li>
+        <a href='/tags/linux/' style='font-size:1em'>Linux</a>
+      </li><li>
+        <a href='/tags/metrics/' style='font-size:1em'>Metrics</a>
+      </li><li>
+        <a href='/tags/network-monitoring/' style='font-size:1em'>Network Monitoring</a>
+      </li><li>
+        <a href='/tags/prometheus/' style='font-size:1em'>Prometheus</a>
+      </li></ul>
+</div>
+
+
+</section>
+</div>
+
+  <div class='sidebar-overlay'></div>
+</div><div class='main'><nav id='main-menu' class='menu main-menu' aria-label='Main Menu'>
+  <div class='container'>
+    <a class='screen-reader-text' href='#content'>Skip to Content</a>
+
+<button id='sidebar-toggler' class='sidebar-toggler' aria-controls='sidebar'>
+  <span class='screen-reader-text'>Toggle Sidebar</span>
+  <span class='open'><svg class='icon' xmlns='http://www.w3.org/2000/svg' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    
+  <line x1="3" y1="12" x2="21" y2="12" />
+  <line x1="3" y1="6" x2="21" y2="6" />
+  <line x1="3" y1="18" x2="21" y2="18" />
+
+</svg>
+</span>
+  <span class='close'><svg class='icon' xmlns='http://www.w3.org/2000/svg' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    
+  <line x1="18" y1="6" x2="6" y2="18" />
+  <line x1="6" y1="6" x2="18" y2="18" />
+
+</svg>
+</span>
+</button>
+    <ul></ul>
+  </div>
+</nav><div class='header-widgets'>
+        <div class='container'>
+    
+    <style>.widget-breadcrumbs li:after{content:'\2f '}</style>
+  <section class='widget widget-breadcrumbs sep-after'>
+    <nav id='breadcrumbs'>
+      <ol><li><a href='/'>FreeBSD Adventures</a></li><li><a href='/post/'>Posts</a></li><li><span>Home Network Monitoring using Prometheus</span></li></ol>
+    </nav>
+  </section></div>
+      </div>
+
+      <header id='header' class='header site-header'>
+        <div class='container sep-after'>
+          <div class='header-info'><p class='site-title title'>FreeBSD Adventures</p><p class='desc site-desc'>Blog mostly about the FreeBSD Operating Systems</p>
+          </div>
+        </div>
+      </header>
+
+      <main id='content'>
+
+
+<article lang='en' class='entry'>
+  <header class='header entry-header'>
+  <div class='container sep-after'>
+    <div class='header-info'>
+      <h1 class='title'>Home Network Monitoring using Prometheus</h1>
+      
+
+    </div>
+    <div class='entry-meta'>
+  <span class='posted-on'><svg class='icon' xmlns='http://www.w3.org/2000/svg' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+  <line x1="16" y1="2" x2="16" y2="6"/>
+  <line x1="8" y1="2" x2="8" y2="6"/>
+  <line x1="3" y1="10" x2="21" y2="10"/>
+
+</svg>
+<span class='screen-reader-text'>Posted on </span>
+  <time class='entry-date' datetime='2021-04-11T17:38:02-05:00'>2021, Apr 11</time>
+</span>
+
+  
+  
+<span class='reading-time'><svg class='icon' xmlns='http://www.w3.org/2000/svg' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    
+  <circle cx="12" cy="12" r="10"/>
+  <polyline points="12 6 12 12 15 15"/>
+
+</svg>
+14 mins read
+</span>
+
+
+</div>
+
+
+  </div>
+</header>
+
+  
+  
+
+  <div class='container entry-content'>
+  <p>This blog post describes my setup for monitoring various devices on my home network suh as servers, laptops/desktops, networking gear etc. The setup and configuration is squarely geared towards small/medium sized network monitoring. A similar setup might work for large networks, but you will need to plan your compute/storage/bandwidth capacities accordingly.
+I&rsquo;m running all the monitoring software on FreeBSD, but you can run it on your choice of OS. Just make sure to install the packages using your OS&rsquo;s package manager.</p>
+<h2 id="tldr-version">TL;DR Version</h2>
+<p>This is super long post, as it involves installing and configuring multiple components. For the impatient, here are the high level steps.</p>
+<ul>
+<li>For instrumenting Linux/BSD boxes install and setup <a href="#node-exporter">Node Exporter</a> on each Linux/BSD box.</li>
+<li>For instrumenting SNMP-enabled devices install <a href="#snmp-exporter">SNMP Exporter</a></li>
+<li>For instrumenting TCP/UDP/ICMP services install <a href="#blackbox-exporter">Blackbox Exporter</a></li>
+<li>For collecting all the metrics centrally install <a href="#prometheus">Prometheus</a></li>
+<li>For dashboards install <a href="#grafana">Grafana</a></li>
+<li>Pay me $ 10 per device monitored (Just kidding!)</li>
+</ul>
+<h2 id="architectural-components">Architectural Components</h2>
+<p>For my needs I&rsquo;ve decided to go with Prometheus and Grafana. I will discuss the reasons for doing in a separate post. Also, this post is not meant to be a general introduction for any of the  hardware/software stacks used. For that please read up on the official documents of the respective hardware/software.</p>
+<p>We start by looking at a conceptual architecture diagram of the various components involved.</p>
+<p><img src="../../images/Prometheus.png" alt="Prometheus Setup"></p>
+<p>The primary components shown in the diagram above are</p>
+<ul>
+<li><a href="https://prometheus.io/">Prometheus</a> for collecting and storing various metrics.</li>
+<li><a href="https://grafana.com/">Grafana</a> for dashboarding.</li>
+<li>Various types of Prometheus exporters
+<ul>
+<li><a href="https://prometheus.io/docs/guides/node-exporter/">Node exporter</a> installed on each FreeBSD/Linux box to be monitored.</li>
+<li>A single instance of <a href="https://github.com/prometheus/blackbox_exporter">Blackbox exporter</a> to monitor various TCP/UDP services.</li>
+<li>A single instance of <a href="https://github.com/prometheus/snmp_exporter">SNMP exporter</a> to monitor devices over SNMP. (routers, switches, WiFi APs, Printers etc.)</li>
+</ul>
+</li>
+</ul>
+<p>Optional components include</p>
+<ul>
+<li><a href="https://www.prometheus.io/docs/alerting/latest/alertmanager/">Prometheus Alert Manager</a> for alerting when metrics trip certain thresholds.</li>
+<li><a href="https://nlnetlabs.nl/projects/unbound/about/">Unbound</a> a recursive, caching DNS resolver for the home network.</li>
+<li><a href="https://caddy.io/">Caddy.io</a> for reverse proxying Grafana.</li>
+<li>Other prometheus <a href="https://prometheus.io/docs/instrumenting/exporters/">exporters</a> to monitor services such as web servers (Apache, Nginx), RDBMS (MariaDB, Postgresql), NoSQL (Redis, MongoDB) etc.</li>
+</ul>
+<p><strong>NOTE</strong>:The exporters don&rsquo;t push data to prometheus, rather the prometheus process scrapes data from a list of configured exporters. So you need to open up the respective network ports on your hosts running the exporters for the Promethus host to connect.</p>
+<h2 id="the-hardwaresoftware-stack">The Hardware/Software Stack</h2>
+<p>What is critical to understand is that you have the flexibility of running Prometheus, Grafana, and the Blackbox and SNMP exporters all on a single machine or each on its dedicated machine or some combination thereof. If you have decent virtualization stack, you can easily run them as VMs or better yet as FreeBSD jails.  However, you do have to run the node_exporter on every server/workstation/desktop/laptop you need to monitor.</p>
+<p>For my home network my hardware and software stack consists of the following pieces.</p>
+<h3 id="nms-box">NMS Box</h3>
+<ul>
+<li><a href="https://wiki.pine64.org/wiki/PINE_A64-LTS">Pine64 A64+-LTS 2GB</a> running <a href="https://www.freebsd.org">FreeBSD</a> 13.0-RC4 ARM64. Software running on this box includes
+<ul>
+<li>A single instance of <a href="https://prometheus.io/">Prometheus</a></li>
+<li>A single instance of  <a href="https://grafana.com/">Grafana</a></li>
+<li>A single instance of <a href="caddy.io/">Caddy</a> web server to reverse-proxy Grafana (Optional)</li>
+<li>A single instance of <a href="https://prometheus.io/docs/guides/node-exporter/">node_exporter</a> for self monitoring (Optional)</li>
+</ul>
+</li>
+</ul>
+<p>I call this my Network Monitoring Server (NMS) box. The hardware is cheap, power efficient, and yet sufficiently powerful enough to run all of the above process. You don&rsquo;t need to run a reverse-proxy and you certainly don&rsquo;t need to self monitor, but I would highly recommend you do both.</p>
+<h3 id="collector-box">Collector Box</h3>
+<ul>
+<li><a href="https://wiki.pine64.org/wiki/SOPine">Pinte64 A64-Sopine 2GB</a>  running <a href="https://www.freebsd.org">FreeBSD</a> 13.0-RC4 ARM64. Software running on this box includes
+<ul>
+<li>A single instance of <a href="https://prometheus.io/docs/guides/node-exporter/">node_exporter</a></li>
+<li>A single instance of <a href="https://github.com/prometheus/blackbox_exporter">Blackbox_exporter</a> to monitor external websites.</li>
+<li>A single instance of <a href="https://github.com/prometheus/snmp_exporter">SNMP exporter</a> to monitor devices over SNMP. (routers, switches, WiFi APs, Printers etc.)</li>
+</ul>
+</li>
+</ul>
+<p>I call this my collector box. Again running on a ARM64 SBC is cheap, power efficient and convenient for my case.</p>
+<p>Lastly I also have another <a href="https://wiki.pine64.org/wiki/PINE_A64">Pine64 A64+ 1GB</a> running Unbound as my local resolving and caching DNS server.</p>
+<h2 id="the-setup-and-configuration">The Setup and Configuration</h2>
+<p>For ease of setup, I recommend that you get started with a bare minimum setup comprising of a Prometheus instance, a Grafana instance, and  a few node exporters instances first. Get familiar with how metrics are collected in Prometheus and how they are charted in Grafana. Once you have a bit of familiarity then move on to Blackbox, SNMP and other exporters. These can be more challenging to set up, so having some familiarity with core Prometheus and Grafan will go a long way.</p>
+<h3 id="node-exporter">Node Exporter</h3>
+<p>Node exporter needs to be installed on every BSD/Linux box you want to monitor. There is also a <a href="https://github.com/prometheus-community/windows_exporter">Windows exporter</a> to monitor Windows boxes.</p>
+<p>For FreeBSD the setup is as follows</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># Everything as root</span>
+<span style="color:#75715e"># If using binary packages</span>
+pkg install node_exporter 
+<span style="color:#75715e"># OR if using ports</span>
+cd /usr/ports/sysutils/node_exporter <span style="color:#f92672">&amp;&amp;</span> make install
+
+<span style="color:#75715e"># Enable, start and verify service</span>
+service node_exporter enable
+service node_exporter start
+service node_exporter status 
+
+<span style="color:#75715e"># Verify that node_exporter is running and ready to be scraped by Prometheus</span>
+fetch -o - <span style="color:#e6db74">&#39;https://127.0.0.1:9100/metrics&#39;</span> 
+</code></pre></div><p>By default node_exporter listens on all network interfaces on TCP port 9100. You can change that by adding <code>node_exporter_listen_address=[&lt;IP&gt;]:&lt;port&gt;</code> in <code>/etc/rc.conf</code>. Whichever port you choose, you&rsquo;ll need to ensure that the server running prometheus can connect to each node_exporter instance over that port. This typically involves opening that port in your choice of firewall between the node exporters and prometheus.</p>
+<h3 id="prometheus">Prometheus</h3>
+<p>For FreeBSD the setup for Prometheus is as follows</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># Everything as root</span>
+<span style="color:#75715e"># If using binary packages</span>
+pkg install prometheus
+<span style="color:#75715e"># OR if using ports</span>
+cd /usr/ports/net-mgmt/prometheus2  <span style="color:#f92672">&amp;&amp;</span> make install
+
+<span style="color:#75715e">#Configure Prometheus (See sample config below)</span>
+vi /usr/local/etc/prometheus.yml
+
+<span style="color:#75715e"># Enable, start and verify service</span>
+service prometheus enable
+service prometheus start
+service prometheus status 
+
+</code></pre></div><p>By default Prometheus listens on TCP port 9090, so you may need to open that port on your firewall to able to talk directly to Prometheus. This is strictly optional as you&rsquo;ll be interacting with Prometheus via Grafana dashboards, but it does come in handy for initial setup and verification.</p>
+<p>Before starting Prometheus service, you do have to setup some basic configuration as shown below.
+This is a bare minimum <code>/usr/local/etc/prometheus.yml</code> to get you started.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">global</span>:
+ <span style="color:#75715e"># you can change these as depedning on how granular you want your metrics ,</span>
+ <span style="color:#75715e"># and how busy your network is.</span>
+  <span style="color:#f92672">scrape_interval</span>:     <span style="color:#ae81ff">60s</span> <span style="color:#75715e"># Scrape job runs every 1 min.</span>
+  <span style="color:#f92672">evaluation_interval</span>: <span style="color:#ae81ff">60s</span> <span style="color:#75715e"># Evaluate rules every 1 min.</span>
+  <span style="color:#75715e"># scrape_timeout is set to the global default (10s).</span>
+
+<span style="color:#75715e"># Alertmanager configuration</span>
+<span style="color:#f92672">alerting</span>:
+  <span style="color:#f92672">alertmanagers</span>:
+  - <span style="color:#f92672">static_configs</span>:
+    - <span style="color:#f92672">targets</span>:
+      <span style="color:#75715e"># - alertmanager:9093</span>
+
+<span style="color:#75715e"># Load rules once and periodically evaluate them according to the global &#39;evaluation_interval&#39;.</span>
+<span style="color:#f92672">rule_files</span>:
+  <span style="color:#75715e"># - &#34;first_rules.yml&#34;</span>
+  <span style="color:#75715e"># - &#34;second_rules.yml&#34;</span>
+
+<span style="color:#f92672">scrape_configs</span>:
+  - <span style="color:#f92672">job_name</span>: <span style="color:#e6db74">&#39;prometheus&#39;</span>      <span style="color:#75715e"># Prometheus Instances</span>
+    <span style="color:#f92672">static_configs</span>:
+    - <span style="color:#f92672">targets</span>: [<span style="color:#e6db74">&#39;localhost:9090&#39;</span>]  <span style="color:#75715e"># Local Prometheus</span>
+  - <span style="color:#f92672">job_name</span>: <span style="color:#e6db74">&#39;node&#39;</span>                                            <span style="color:#75715e"># Node Exporter</span>
+    <span style="color:#f92672">static_configs</span>:
+    - <span style="color:#f92672">targets</span>: [
+            <span style="color:#e6db74">&#39;localhost:9100&#39;</span>, <span style="color:#75715e"># Self</span>
+            <span style="color:#e6db74">&#39;&lt;server-A&gt;:9100&#39;</span>, <span style="color:#75715e"># Some server running node_exporter on port 9100</span>
+            <span style="color:#e6db74">&#39;&lt;desktop-A&gt;:9100&#39;</span>, <span style="color:#75715e"># Some desktop running node_exporter on port 9100</span>
+            ]
+</code></pre></div><p>We are setting up two scrape jobs</p>
+<ul>
+<li>A job named &lsquo;prometheus&rsquo; for Prometheus to monitor itself. Yes, prometheus can monitor itself.</li>
+<li>A job named &lsquo;node&rsquo; for prometheus to scrape all the &lsquo;targets&rsquo; running node_exporter.
+<ul>
+<li>The first target is the node_exporter instance running on the same host running Prometheus.</li>
+<li>After than you should add every host in your network that is running node_exporter.</li>
+<li>To monitor windows hosts consult the documentation of <a href="https://github.com/prometheus-community/windows_exporter">Windows exporter</a>.</li>
+</ul>
+</li>
+</ul>
+<p><strong>NOTE:</strong> The job name can be anything you like, but there are pre-built Grafana dashboards that you may find useful and which assume your jobs are named a certain name. So I suggest to keep the names prometheus and node for these two jobs respectively. We will also add jobs for Blackbox , and SNMP  exporters later on.
+Also, for now we&rsquo;re not setting up any evaluation rules or alerting using an alert manager.</p>
+<p>To verify correct Prometheus setup, open up <code>https://&lt;prometheus-host&gt;:9090/targets/</code> in your web browser and verify that all configured scrapping targets are in the &lsquo;Up&rsquo; status.</p>
+<h3 id="grafana">Grafana</h3>
+<p>For FreeBSD the steps to setup and run Grafana and build some dashboards are given below.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># Everything as root</span>
+<span style="color:#75715e"># If using binary packages</span>
+pkg install grafana
+<span style="color:#75715e"># OR if using ports</span>
+cd /usr/ports/www/grafana  <span style="color:#f92672">&amp;&amp;</span> make install
+
+<span style="color:#75715e"># Enable, start and verify service</span>
+service grafana enable
+service grafana start
+service grafana status 
+</code></pre></div><p>Allow incoming traffic to TCP port 3000 on the host running Grafana. In a web browser open up <code>https://&lt;grafana-host&gt;:3000/</code> . Then ..</p>
+<ul>
+<li>Login using <code>admin</code>/<code>admin</code> and change the admin password.</li>
+<li>Add Prometheus data source to Grafana as described in the <a href="https://grafana.com/docs/grafana/latest/datasources/add-a-data-source/">Grafana docs</a>.</li>
+<li>Import the following pre-built dashboards from the Grafana Dashboards <a href="https://grafana.com/grafana/dashboards/4260">list</a>   using procedure described <a href="https://grafana.com/docs/grafana/latest/dashboards/export-import/">here</a>.
+<ul>
+<li><a href="https://grafana.com/grafana/dashboards/3662">Prometheus 2.0 Overview</a> for Prometheus metrics</li>
+<li><a href="https://grafana.com/grafana/dashboards/11449">Prometheus Internal Stats</a> for Prometheus metrics</li>
+<li><a href="https://grafana.com/grafana/dashboards/13978">Node Exporter Quickstart</a> for Linux</li>
+<li><a href="https://grafana.com/grafana/dashboards/1860">Node exporter Full</a> for Linux</li>
+<li><a href="https://grafana.com/grafana/dashboards/4260">Node Exporter FreeBSD</a> for FreeBSD</li>
+</ul>
+</li>
+</ul>
+<p>You can customize your instance by editing <code> /usr/local/etc/grafana.conf</code>, but I haven&rsquo;t seen a need to edit this file for now.
+At this point you should have a functional Prometheus+Grafana set up to monitor all the Linux/BSD boxes running node_exporter on your LAN.</p>
+<p><strong>WARNING:</strong> You may need to fix some of the charts in the pre-built dashboards manually. For that you will have to read up on how to work with charts in Grafana.</p>
+<h3 id="blackbox-exporter">Blackbox Exporter</h3>
+<p>If you need to monitor a bunch of TCP/UDP/SNMP services, e.g. HTTP/HTTPS , DNS records, IMAP/SMTP servers etc. then you need to install and setup a Blackbox exporter.
+For FreeBSD the steps are as below.</p>
+<p>On the box that is going to run your blackbox exporter process.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># Everything as root</span>
+<span style="color:#75715e"># If using binary packages</span>
+pkg install blackbox_exporter 
+<span style="color:#75715e"># OR if using ports</span>
+cd /usr/ports/net-mgmt/blackbox_exporter <span style="color:#f92672">&amp;&amp;</span> make install
+
+<span style="color:#75715e"># Edit Configuration (See code sample config below)</span>
+vi /usr/local/etc/blackbox_exporter.yml
+
+<span style="color:#75715e"># Enable, start and verify service</span>
+service blackbox_exporter enable
+service blackbox_exporter start
+service blackbox_exporter status 
+</code></pre></div><p>By default blackbox_exporter listens on the loopback (lo) interface on TCP port 9115. You should change that to listen on an external or all interface by adding <code>blackbox_exporter_listen_address=:9115</code> in <code>/etc/rc.conf</code>. Whichever port you choose, you&rsquo;ll need to ensure that the server running prometheus can connect to the blackbox_exporter instance over that port. This typically involves allowing traffic  to the Blackbox exporter port on firewall between the blackbox exporter and prometheus.</p>
+<p>Before starting blackbox_exporter service, you do have to setup some basic configuration as shown below.
+This is a bare minimum <code>/usr/local/etc/blackbox_exporter.yml</code> to get you started.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">modules</span>:
+  <span style="color:#f92672">tcp_connect</span>:
+    <span style="color:#f92672">prober</span>: <span style="color:#ae81ff">tcp</span>
+  <span style="color:#f92672">tls_connect</span>:
+    <span style="color:#f92672">prober</span>: <span style="color:#ae81ff">tcp</span>
+    <span style="color:#f92672">timeout</span>: <span style="color:#ae81ff">5s</span>
+    <span style="color:#f92672">tcp</span>:
+      <span style="color:#f92672">tls</span>: <span style="color:#66d9ef">true</span>
+  <span style="color:#f92672">ssh_banner</span>:
+    <span style="color:#f92672">prober</span>: <span style="color:#ae81ff">tcp</span>
+    <span style="color:#f92672">tcp</span>:
+      <span style="color:#f92672">query_response</span>:
+      - <span style="color:#f92672">expect</span>: <span style="color:#e6db74">&#34;^SSH-2.0-&#34;</span>
+  <span style="color:#f92672">http_2xx</span>:
+    <span style="color:#f92672">prober</span>: <span style="color:#ae81ff">http</span>
+  <span style="color:#f92672">https_2xx</span>:
+    <span style="color:#f92672">prober</span>: <span style="color:#ae81ff">http</span>
+    <span style="color:#f92672">timeout</span>: <span style="color:#ae81ff">5s</span>
+    <span style="color:#f92672">http</span>:
+      <span style="color:#f92672">valid_http_versions</span>: [<span style="color:#e6db74">&#34;HTTP/1.1&#34;</span>, <span style="color:#e6db74">&#34;HTTP/2.0&#34;</span>]
+      <span style="color:#f92672">valid_status_codes</span>: []  <span style="color:#75715e"># Defaults to 2xx</span>
+      <span style="color:#f92672">method</span>: <span style="color:#ae81ff">GET</span>
+      <span style="color:#f92672">headers</span>:
+        <span style="color:#f92672">Accept-Language</span>: <span style="color:#ae81ff">en-US</span>
+      <span style="color:#f92672">no_follow_redirects</span>: <span style="color:#66d9ef">false</span>
+      <span style="color:#f92672">fail_if_ssl</span>: <span style="color:#66d9ef">false</span>
+      <span style="color:#f92672">fail_if_not_ssl</span>: <span style="color:#66d9ef">true</span>
+      <span style="color:#f92672">tls_config</span>:
+        <span style="color:#f92672">insecure_skip_verify</span>: <span style="color:#66d9ef">false</span>
+      <span style="color:#f92672">fail_if_header_not_matches</span>:
+        - <span style="color:#f92672">header</span>: <span style="color:#ae81ff">Strict-Transport-Security</span>
+          <span style="color:#f92672">regexp</span>: <span style="color:#e6db74">&#34;(max-age=.*)&#34;</span>
+        - <span style="color:#f92672">header</span>: <span style="color:#ae81ff">X-Content-Type-Options</span>
+          <span style="color:#f92672">regexp</span>: <span style="color:#e6db74">&#34;nosniff&#34;</span>
+        - <span style="color:#f92672">header</span>: <span style="color:#ae81ff">X-XSS-Protection</span>
+          <span style="color:#f92672">regexp </span>: <span style="color:#e6db74">&#34;1; mode=block&#34;</span>
+        - <span style="color:#f92672">header</span>: <span style="color:#ae81ff">X-Frame-Options</span>
+          <span style="color:#f92672">regexp </span>: <span style="color:#e6db74">&#34;SAMEORIGIN&#34;</span>
+</code></pre></div><p>Here we have setup http, https, tcp, tcp w/ tls, and ssh checks. There a quite a few modules you can set up as described in the <a href="https://github.com/prometheus/blackbox_exporter/blob/v0.17.0/CONFIGURATION.md">official docs</a>. You can also consult example config files <a href="https://github.com/prometheus/blackbox_exporter/blob/v0.17.0/blackbox.yml">here</a> &amp; <a href="https://github.com/prometheus/blackbox_exporter/blob/v0.17.0/example.yml">here</a>.</p>
+<p>Once you have configured and started blackbox_exporter you can verify that it&rsquo;s operating correctly by running</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">fetch -o - <span style="color:#e6db74">&#39;http://&lt;blackbox-exporter-host&gt;:9115/probe?module=http_2xx&amp;target=www.freebsd.org&#39;</span>
+</code></pre></div><p>The result of the above command should have &lsquo;probe_success 1&rsquo; . This was a simple <code>http_2xx</code> probe for <code>www.freebsd.org</code>.</p>
+<p>We are not done yet. Now we need to setup Prometheus to scrape the Blackbox exporter and also define some rules for certain conditions. On you Prometheus box edit <code>/usr/local/etc/prometheus.yml</code> file and the following.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#f92672">rule_files</span>:
+ - <span style="color:#e6db74">&#34;/usr/local/etc/ssl_expiry_rules.yaml&#34;</span>
+
+<span style="color:#f92672">scrape_configs</span>:
+  - <span style="color:#f92672">job_name</span>: <span style="color:#e6db74">&#39;blackbox&#39;</span>                                        <span style="color:#75715e"># Blackbox</span>
+   <span style="color:#f92672">metrics_path</span>: <span style="color:#ae81ff">/probe</span>
+   <span style="color:#f92672">params</span>:
+     <span style="color:#f92672">module</span>: [<span style="color:#ae81ff">https_2xx] </span> <span style="color:#75715e"># Look for a HTTP 200 response.</span>
+   <span style="color:#f92672">static_configs</span>:
+     - <span style="color:#f92672">targets</span>:
+       - <span style="color:#ae81ff">www.freebsd.org</span>
+   <span style="color:#f92672">relabel_configs</span>:
+     - <span style="color:#f92672">source_labels</span>: [<span style="color:#ae81ff">__address__]</span>
+       <span style="color:#f92672">target_label</span>: <span style="color:#ae81ff">__param_target</span>
+     - <span style="color:#f92672">source_labels</span>: [<span style="color:#ae81ff">__param_target]</span>
+       <span style="color:#f92672">target_label</span>: <span style="color:#ae81ff">instance</span>
+     - <span style="color:#f92672">target_label</span>: <span style="color:#ae81ff">__address__</span>
+       <span style="color:#f92672">replacement</span>: <span style="color:#ae81ff">&lt;blackbox_exporter-host&gt;:9115 </span> <span style="color:#75715e"># The blackbox exporter&#39;s real hostname:port.</span>
+</code></pre></div><p>Here we have setup https (module <code>https_2xx</code>) probing of <code>www.freebsd.org</code> (target). The last line specifies the hostname and port of the box running blackbox exporter.</p>
+<p>The <code>/usr/local/etc/ssl_expiry_rules.yaml</code> contains a rule to check for expiration of SSL certificates of the HTTPS sites you are monitoring.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">groups</span>:
+  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">ssl_expiry.rules</span>
+    <span style="color:#f92672">rules</span>:
+      - <span style="color:#f92672">alert</span>: <span style="color:#ae81ff">SSLCertExpiringSoon</span>
+        <span style="color:#f92672">expr</span>: <span style="color:#ae81ff">probe_ssl_earliest_cert_expiry{job=&#34;blackbox&#34;} - time() &lt; 86400 * 30</span>
+        <span style="color:#f92672">for</span>: <span style="color:#ae81ff">10m</span>
+</code></pre></div><p>Lastly, you need to import the pre-built <a href="https://grafana.com/grafana/dashboards/7587">Blackbox Exporter</a> dashboard in your Grafana instance.</p>
+<p><strong>NOTE:</strong> Here I have shown example of probing only one module - <code>https_2xx</code>. You will need to setup probing of other modules supported by the blackbox exporter as per your needs (DNS, SMTP, IMAP etc.). For each module you need to set a new scrape job and specify the targets accordingly.</p>
+<h3 id="snmp-exporter">SNMP Exporter</h3>
+<p>The SNMP exporter is the most tricky of all the components so far to install. Be prepared for things to not work as expected initially. Also, you need to be familiar with basics of networking and SNMP monitoring to a certain degree.</p>
+<p>For FreeBSD the steps to setup the SNMP exporter are</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># Everything as root</span>
+<span style="color:#75715e"># If using binary packages</span>
+pkg install snmp_exporter 
+<span style="color:#75715e"># OR if using ports</span>
+cd /usr/ports/sysutils/snmp_exporter <span style="color:#f92672">&amp;&amp;</span> make install
+
+<span style="color:#75715e"># Edit Configuration (See code sample config below)</span>
+mkdir -p /usr/local/etc/snmp_exporter
+cd /usr/local/etc/snmp_exporter
+fetch  https://github.com/prometheus/snmp_exporter/raw/main/snmp.yml
+fetch  https://raw.githubusercontent.com/prometheus/snmp_exporter/main/generator/generator.yml
+
+<span style="color:#75715e"># Enable, start and verify service</span>
+service snmp_exporter enable
+service snmp_exporter start
+service snmp_exporter status 
+</code></pre></div><p>SNMP exporter listens on TCP port 9116 by default. The default <code>snmp.yml</code> should get you started for most types of SNMP devices. However I had some trouble starting the exporter using that file. The alternative is to generate your custom <code>snmp.yml</code> file using the <code>generator.yml</code> + MIB files for your needs. The procedure is a bit daunting first, and is described <a href="https://github.com/prometheus/snmp_exporter/tree/main/generator">here</a>. It may take you a couple of attempts to get your <code>snmp.yml</code> setup just right.</p>
+<p>Also worth mentioning that the community (v1), username/password (v2), encryption password (v3) need to be specified in your snmp.yml. They cannot be supplied as parameters from your <code>prometheus.yml</code> file.</p>
+<p>Here is sample bare minimum <code>snmp.yml</code> file to pull network interface metrics.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#f92672">if_mib</span>:
+  <span style="color:#f92672">walk</span>:
+  - <span style="color:#ae81ff">1.3.6.1.2.1.2</span>
+  - <span style="color:#ae81ff">1.3.6.1.2.1.31.1.1</span>
+  <span style="color:#f92672">get</span>:
+  - <span style="color:#ae81ff">1.3.6.1.2.1.1.3.0</span>
+  <span style="color:#f92672">metrics</span>:
+  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">sysUpTime</span>
+    <span style="color:#f92672">oid</span>: <span style="color:#ae81ff">1.3.6.1.2.1.1.3</span>
+    <span style="color:#f92672">type</span>: <span style="color:#ae81ff">gauge</span>
+    <span style="color:#f92672">help</span>: <span style="color:#ae81ff">The time (in hundredths of a second) since the network management portion</span>
+      <span style="color:#ae81ff">of the system was last re-initialized. - 1.3.6.1.2.1.1.3</span>
+<span style="color:#75715e"># Many more metrics here. See the downloaded snmp.yml file fo the full section.</span>
+<span style="color:#f92672">version</span>: <span style="color:#ae81ff">2</span>
+   <span style="color:#f92672">max_repetitions</span>: <span style="color:#ae81ff">25</span>
+   <span style="color:#f92672">retries</span>: <span style="color:#ae81ff">3</span>
+   <span style="color:#f92672">timeout</span>: <span style="color:#ae81ff">5s</span>
+   <span style="color:#f92672">auth</span>:
+     <span style="color:#f92672">community</span>: <span style="color:#ae81ff">public</span>
+</code></pre></div><p>Here I&rsquo;ve setup <code>if_mib</code> as the block to pull SNMP details from network interfaces of a device which supports SNMP version 2 using community &lsquo;public&rsquo;. If all your SNMP gear run the same SNMP version and use the same authentication then you can use the same block to probe all of them. Otherwise you will need different blocks for each type specifying correct version and authentication parameters. e.g. In my case, I have <code>if_mib_router</code> for my router, <code>if_mib_ap</code> for my WiFi access points, <code>if_mib_printer</code> for my network printer, <code>if_mib_synology</code> for my Synology NAS each with respective version and authentication details.</p>
+<p>To verify SNMP exporter is setup and working correctly&hellip;</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">fetch -o -  <span style="color:#e6db74">&#39;http://127.0.0.1:9116/snmp?module=if_mib&amp;target=&lt;snmp-enabled-device&gt;&#39;</span>
+</code></pre></div><p>Lastly, only SNMP v3 using AuthPriv supports proper authentication and encryption. Anything else is open for network sniffing. So <strong>please enable SNMP v2/v1 only in networks you trust</strong>. Or better yet find a more secure way to instrument your devices.</p>
+<p>We are not done yet. Now we need to setup Prometheus to scrape the SNMP exporter. On you Prometheus box edit <code>/usr/local/etc/prometheus.yml</code> file and the following.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"> <span style="color:#f92672">scrape_configs</span>:
+  - <span style="color:#f92672">job_name</span>: <span style="color:#e6db74">&#39;snmp_exporter&#39;</span>   <span style="color:#75715e"># This is to instrument the SNMP Exporter itself</span>
+   <span style="color:#f92672">static_configs</span>:
+   - <span style="color:#f92672">targets</span>: [<span style="color:#e6db74">&#39;&lt;snmp-exporter host&gt;:9116&#39;</span>]
+  - <span style="color:#f92672">job_name</span>: <span style="color:#e6db74">&#39;snmp&#39;</span>        <span style="color:#75715e"># Query devices over SNMP</span>
+   <span style="color:#f92672">static_configs</span>:
+     - <span style="color:#f92672">targets</span>:  [ 
+       <span style="color:#ae81ff">&lt;SNMP Device1&gt;,</span>
+       <span style="color:#ae81ff">&lt;SNMP Device 2&gt;</span>
+     ]
+   <span style="color:#f92672">metrics_path</span>: <span style="color:#ae81ff">/snmp</span>
+   <span style="color:#f92672">params</span>:
+     <span style="color:#f92672">module</span>: [<span style="color:#ae81ff">if_mib]</span>
+   <span style="color:#f92672">relabel_configs</span>:
+     - <span style="color:#f92672">source_labels</span>: [<span style="color:#ae81ff">__address__]</span>
+       <span style="color:#f92672">target_label</span>: <span style="color:#ae81ff">__param_target</span>
+     - <span style="color:#f92672">source_labels</span>: [<span style="color:#ae81ff">__param_target]</span>
+       <span style="color:#f92672">target_label</span>: <span style="color:#ae81ff">instance</span>
+     - <span style="color:#f92672">target_label</span>: <span style="color:#ae81ff">__address__</span>
+       <span style="color:#f92672">replacement</span>: <span style="color:#e6db74">&#39;&lt;snmp-exporter host&gt;:9116&#39;</span> <span style="color:#75715e">#Hostname/IP of the snmp_exporter</span>
+</code></pre></div><p>The first job <code>snmp_exporter</code> pull metrics about the exporter itself including how much time it took, whether there were any errors etc.
+In the second job <code>snmp</code> we have setup network interface (module <code>if_mib</code>) probing of a couple of SNMP-enabled devices (targets). The last line specifies the hostname and port of the box running blackbox exporter.</p>
+<p>Lastly, you need to import some of the following pre-built SNMP dashboard in your Grafana instance.</p>
+<ul>
+<li><a href="https://grafana.com/grafana/dashboards/12197">SNMP Exporter Internal Stats</a></li>
+<li><a href="https://grafana.com/grafana/dashboards/12492">SNMP Interface Details</a></li>
+<li><a href="https://grafana.com/grafana/dashboards/12489">SNMP Device Summary</a></li>
+</ul>
+<h3 id="other-exporters-and-dashboards">Other Exporters and Dashboards</h3>
+<p>Here are some more exporters and dashboards you may find useful</p>
+<ul>
+<li><a href="https://www.freebsd.org/cgi/man.cgi?query=prometheus_sysctl_exporter">FreeBSD kernel exporter</a> + <a href="https://grafana.com/grafana/dashboards/12628">FreeBSD ZFS Stats</a> Dashboard</li>
+<li>FreeBSD gstats <a href="https://github.com/tykling/gstat_exporter">exporter</a> + <a href="https://grafana.com/grafana/dashboards/11223">Dashboard</a></li>
+<li>Dashboards for <a href="https://grafana.com/grafana/dashboards/9291">OpnSense</a> / <a href="https://grafana.com/grafana/dashboards/7179">pfSense</a></li>
+<li>Unbound DNS resolver <a href="https://github.com/kumina/unbound_exporter">exporter</a> + <a href="https://grafana.com/grafana/dashboards/11705">Dashboard</a></li>
+<li>Many <a href="https://grafana.com/grafana/dashboards?dataSource=prometheus&amp;direction=desc&amp;orderBy=reviewsCount&amp;search=SNMP">SNMP Dashboards</a></li>
+</ul>
+<h2 id="tour-of-my-dashboards">Tour of My Dashboards</h2>
+<p>Finally here is a small tour of my own setup to monitor my home network.</p>
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="https://player.vimeo.com/video/536569662" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" title="vimeo video" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+</div>
+
+<h2 id="final-thoughts">Final Thoughts</h2>
+<p>It took me a grand total of 8 to 10 hours spread over two weekends to set this whole thing up. Most of that time was spent in reading the configuration guides for the various components. Also the SNMP exporter portion took the most of my time due to the complicated steps involved.</p>
+<p>Overall though I am very pleased with this setup. For starters I have found some use for my Pine64 SBCs which were lying idle until now. Secondly, I think the setup if flexible enough to be able to track even more different types of time-series data like metrics from IoT devices/sensors for weather, energy/water consumption. The possibilities are endless.</p>
+<p>If you have read this whole post end to end, then congratulations and a tip of the hat for your patience. I hope you&rsquo;ve found this post helpful to get started in home network monitoring.</p>
+
+</div>
+
+  
+<footer class='entry-footer'>
+  <div class='container sep-before'><div class='tags'><svg class='icon' xmlns='http://www.w3.org/2000/svg' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    
+  <path d="M20.59,13.41l-7.17,7.17a2,2,0,0,1-2.83,0L2,12V2H12l8.59,8.59A2,2,0,0,1,20.59,13.41Z"/>
+  <line x1="7" y1="7" x2="7" y2="7"/>
+
+</svg>
+<span class='screen-reader-text'>Tags: </span><a class='tag' href='/tags/prometheus/'>Prometheus</a>, <a class='tag' href='/tags/grafana/'>Grafana</a>, <a class='tag' href='/tags/freebsd/'>FreeBSD</a>, <a class='tag' href='/tags/network-monitoring/'>Network Monitoring</a>, <a class='tag' href='/tags/metrics/'>Metrics</a>, <a class='tag' href='/tags/home-networking/'>Home Networking</a></div>
+
+  </div>
+</footer>
+
+
+</article>
+
+<nav class='entry-nav'>
+  <div class='container'><div class='prev-entry sep-before'>
+      <a href='/post/freebsd-blog/'>
+        <span aria-hidden='true'><svg class='icon' xmlns='http://www.w3.org/2000/svg' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    
+  <line x1="20" y1="12" x2="4" y2="12"/>
+  <polyline points="10 18 4 12 10 6"/>
+
+</svg>
+ Previous</span>
+        <span class='screen-reader-text'>Previous post: </span>FreeBSD Blog</a>
+    </div></div>
+</nav>
+
+
+
+
+      </main>
+
+      <footer id='footer' class='footer'>
+        <div class='container sep-before'><section class='widget widget-social_menu sep-after'><nav aria-label='Social Menu'>
+    <ul><li>
+        <a href='https://github.com/Linux-BSD' target='_blank' rel='noopener me'>
+          <span class='screen-reader-text'>Open Github account in new tab</span><svg class='icon' xmlns='http://www.w3.org/2000/svg' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    
+      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+
+</svg>
+</a>
+      </li><li>
+        <a href='https://twitter.com/linux_bsd' target='_blank' rel='noopener me'>
+          <span class='screen-reader-text'>Open Twitter account in new tab</span><svg class='icon' xmlns='http://www.w3.org/2000/svg' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+    
+    
+  <title>Twitter icon</title>
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+
+</svg>
+</a>
+      </li></ul>
+  </nav>
+</section><div class='copyright'>
+  <p><a href="https://linux-bsd.github.io/">My BSD Blog</a> &copy; 2021 by <a href="https://github.com/Linux-BSD">me</a> is licensed under <a href="http://creativecommons.org/licenses/by/4.0/?ref=chooser-v1">CC BY 4.0</a> <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1'" alt=""> <img src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""></p>
+</div>
+
+        </div>
+      </footer>
+
+    </div>
+  </div><script>window.__assets_js_src="/assets/js/"</script>
+
+<script src='/assets/js/main.c3bcf2df.js'></script>
+
+</body>
+
+</html>
+

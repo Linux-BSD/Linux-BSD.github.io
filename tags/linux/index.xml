@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Linux on Blog about mostly FreeBSD</title>
+    <title>Linux on FreeBSD Adventures</title>
     <link>https://linux-bsd.github.io/tags/linux/</link>
-    <description>Recent content in Linux on Blog about mostly FreeBSD</description>
+    <description>Recent content in Linux on FreeBSD Adventures</description>
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>Sat, 10 Apr 2021 18:19:24 -0500</lastBuildDate><atom:link href="https://linux-bsd.github.io/tags/linux/index.xml" rel="self" type="application/rss+xml" />
     <item>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Grafana on FreeBSD Adventures</title>
+    <link>https://linux-bsd.github.io/tags/grafana/</link>
+    <description>Recent content in Grafana on FreeBSD Adventures</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Sun, 11 Apr 2021 17:38:02 -0500</lastBuildDate><atom:link href="https://linux-bsd.github.io/tags/grafana/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Home Network Monitoring using Prometheus</title>
+      <link>https://linux-bsd.github.io/post/monitoring/</link>
+      <pubDate>Sun, 11 Apr 2021 17:38:02 -0500</pubDate>
+      
+      <guid>https://linux-bsd.github.io/post/monitoring/</guid>
+      <description>This blog post describes my setup for monitoring various devices on my home network suh as servers, laptops/desktops, networking gear etc. The setup and configuration is squarely geared towards small/medium sized network monitoring. A similar setup might work for large networks, but you will need to plan your compute/storage/bandwidth capacities accordingly. I&amp;rsquo;m running all the monitoring software on FreeBSD, but you can run it on your choice of OS. Just make sure to install the packages using your OS&amp;rsquo;s package manager.</description>
+    </item>
+    
+  </channel>
+</rss>

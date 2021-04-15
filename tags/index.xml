@@ -1,17 +1,62 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Tags on Blog about mostly FreeBSD</title>
+    <title>Tags on FreeBSD Adventures</title>
     <link>https://linux-bsd.github.io/tags/</link>
-    <description>Recent content in Tags on Blog about mostly FreeBSD</description>
+    <description>Recent content in Tags on FreeBSD Adventures</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sat, 10 Apr 2021 18:19:24 -0500</lastBuildDate><atom:link href="https://linux-bsd.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 11 Apr 2021 17:38:02 -0500</lastBuildDate><atom:link href="https://linux-bsd.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>FreeBSD</title>
       <link>https://linux-bsd.github.io/tags/freebsd/</link>
-      <pubDate>Sat, 10 Apr 2021 18:19:24 -0500</pubDate>
+      <pubDate>Sun, 11 Apr 2021 17:38:02 -0500</pubDate>
       
       <guid>https://linux-bsd.github.io/tags/freebsd/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Grafana</title>
+      <link>https://linux-bsd.github.io/tags/grafana/</link>
+      <pubDate>Sun, 11 Apr 2021 17:38:02 -0500</pubDate>
+      
+      <guid>https://linux-bsd.github.io/tags/grafana/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Home Networking</title>
+      <link>https://linux-bsd.github.io/tags/home-networking/</link>
+      <pubDate>Sun, 11 Apr 2021 17:38:02 -0500</pubDate>
+      
+      <guid>https://linux-bsd.github.io/tags/home-networking/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Metrics</title>
+      <link>https://linux-bsd.github.io/tags/metrics/</link>
+      <pubDate>Sun, 11 Apr 2021 17:38:02 -0500</pubDate>
+      
+      <guid>https://linux-bsd.github.io/tags/metrics/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Network Monitoring</title>
+      <link>https://linux-bsd.github.io/tags/network-monitoring/</link>
+      <pubDate>Sun, 11 Apr 2021 17:38:02 -0500</pubDate>
+      
+      <guid>https://linux-bsd.github.io/tags/network-monitoring/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Prometheus</title>
+      <link>https://linux-bsd.github.io/tags/prometheus/</link>
+      <pubDate>Sun, 11 Apr 2021 17:38:02 -0500</pubDate>
+      
+      <guid>https://linux-bsd.github.io/tags/prometheus/</guid>
       <description></description>
     </item>
     
