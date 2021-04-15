@@ -323,9 +323,9 @@ Also, for now we&rsquo;re not setting up any evaluation rules or alerting using 
 <p>For FreeBSD the steps to setup and run Grafana and build some dashboards are given below.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># Everything as root</span>
 <span style="color:#75715e"># If using binary packages</span>
-pkg install grafana
+pkg install grafana7
 <span style="color:#75715e"># OR if using ports</span>
-cd /usr/ports/www/grafana  <span style="color:#f92672">&amp;&amp;</span> make install
+cd /usr/ports/www/grafana7  <span style="color:#f92672">&amp;&amp;</span> make install
 
 <span style="color:#75715e"># Enable, start and verify service</span>
 service grafana enable
