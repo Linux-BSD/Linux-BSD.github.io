@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Blog about mostly FreeBSD</title>
-    <link>https://linux-bsd.github.io/</link>
-    <description>Recent content on Blog about mostly FreeBSD</description>
+    <title>FreeBSD on Blog about mostly FreeBSD</title>
+    <link>https://linux-bsd.github.io/tags/freebsd/</link>
+    <description>Recent content in FreeBSD on Blog about mostly FreeBSD</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sat, 10 Apr 2021 18:19:24 -0500</lastBuildDate><atom:link href="https://linux-bsd.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 10 Apr 2021 18:19:24 -0500</lastBuildDate><atom:link href="https://linux-bsd.github.io/tags/freebsd/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>FreeBSD Blog</title>
       <link>https://linux-bsd.github.io/post/freebsd-blog/</link>

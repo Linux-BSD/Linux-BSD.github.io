@@ -4,6 +4,25 @@
     <title>Tags on Blog about mostly FreeBSD</title>
     <link>https://linux-bsd.github.io/tags/</link>
     <description>Recent content in Tags on Blog about mostly FreeBSD</description>
-    <generator>Hugo -- gohugo.io</generator><atom:link href="https://linux-bsd.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Sat, 10 Apr 2021 18:19:24 -0500</lastBuildDate><atom:link href="https://linux-bsd.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>FreeBSD</title>
+      <link>https://linux-bsd.github.io/tags/freebsd/</link>
+      <pubDate>Sat, 10 Apr 2021 18:19:24 -0500</pubDate>
+      
+      <guid>https://linux-bsd.github.io/tags/freebsd/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Linux</title>
+      <link>https://linux-bsd.github.io/tags/linux/</link>
+      <pubDate>Sat, 10 Apr 2021 18:19:24 -0500</pubDate>
+      
+      <guid>https://linux-bsd.github.io/tags/linux/</guid>
+      <description></description>
+    </item>
+    
   </channel>
 </rss>
